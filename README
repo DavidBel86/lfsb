@@ -1,0 +1,46 @@
+This program changes PLL registers over i2c/SMbus, and FSB clock speed changes
+too.
+
+If your PLL is not supported you can do following:
+
+1. Download datasheet, read it, write support by yourself.
+   Test it. Send code and results to me.
+   That is the easy way. :)
+
+2. Send email to me with name of your PLL and when possible with URL pointing to
+datasheet for it.
+   Wait some time.
+   Download new version with support for your PLL.
+   Test it. Send results to me.
+   That is the hard way. :)
+
+3. Go to Bobrooysk and drink poison. That was the only option when no datasheet
+was to find.
+   But now there is possible solution (requires windows). Under windows change
+   FSB frequency with manufacturer tool (AMD Overdrive or what ever) and dump
+   i2c registers for 10 different frequencies in desired range. Send this data
+   to me. Then I can try to reverse engineer the magic formula for your PLL.
+   Worst case scenario would be table for fixed frequencies, most overclockers
+   don't require that much of them.
+
+To check PLL i2c/SMbus availability run:
+i2cdetect -l
+i2cdetect X
+i2cdump X 0x69 s (read manual, block read/write is not always possible)
+X is the number of your bus.
+
+And yes, this program can damage your hardware.
+
+Also make sure not to use the TSC time source when using this program as this
+time source is included in the CPU and run at wrong speed after changing FSB.
+You can accomplish this by adding a boot parameter from your boot manager
+"clocksource=hpet" or from command line with:
+"echo hpet > /sys/devices/system/clocksource/clocksource0/current_clocksource"
+If hpet is not available use acpi_pm.
+Check /sys/devices/system/clocksource/clocksource0/available_clocksource for
+available clocksources.
+
+If you can't see i2c bus of your MoBo check boot messages for ACPI resource
+conflicts. Boot parameter "acpi_enforce_resources=lax" can help in this case.
+Parameter "clocksource=acpi_pm" can help unhide PLLs 0x69 smbus address.
+
